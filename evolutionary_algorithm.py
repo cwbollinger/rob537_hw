@@ -94,7 +94,7 @@ def evolutionary_algorithm(cities, population_size, iterations, seed=2):
         population = np.concatenate((population, path), axis=0)
 
     for i in range(iterations):
-        if (i % 1000) == 0:
+        if (i % 100) == 0:
             print(i)
         # generate
 
@@ -132,10 +132,12 @@ def get_ten(problem_map, pop_size, iterations):
 
 if __name__ == "__main__":
     # roadmap = TravelingSalesman('C:/Users/Chris/Documents/OSU/ROB537/homework/hw2_data/15cities.csv')
-    roadmap = TravelingSalesman('/home/chris/rob537_hw/data/hw2_data/15cities.csv')
-    roadmap = TravelingSalesman('/home/chris/rob537_hw/data/hw2_data/25cities.csv')
+    # roadmap = TravelingSalesman('/home/chris/rob537_hw/data/hw2_data/15cities.csv')
+    # roadmap = TravelingSalesman('/home/chris/rob537_hw/data/hw2_data/25cities.csv')
+    roadmap = TravelingSalesman('/home/chris/rob537_hw/data/hw2_data/25cities_A.csv')
+    # roadmap = TravelingSalesman('/home/chris/rob537_hw/data/hw2_data/100cities.csv')
     k = 50
-    iterations = 1000
+    iterations = 3000
     prof = cProfile.Profile()
     prof.enable()
     pops, scores = prof.runcall(get_ten, roadmap, k, iterations)

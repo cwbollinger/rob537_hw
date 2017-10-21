@@ -63,12 +63,12 @@ def epsilon_greedy(problem_map, iterations, epsilon):
 
 
 def has_run(path, a, b, c):
-    filename = '{}_{:.0f}_{:.3f}.csv'.format(a, b, c)
+    filename = '{}_{:.3f}_{:.0f}.csv'.format(a, b, c)
     return os.path.exists(os.path.join(path, filename))
 
 
 def save_run(paths, scores, path, a, b, c):
-    filename = '{}_{:.0f}_{:.3f}.csv'.format(a, b, c)
+    filename = '{}_{:.3f}_{:.0f}.csv'.format(a, b, c)
     with open(os.path.join(path, filename), 'w', newline='') as f:
         run_saver = csv.writer(f)
         for i, score in enumerate(scores):
@@ -76,7 +76,7 @@ def save_run(paths, scores, path, a, b, c):
 
 
 def load_run(path, a, b, c):
-    filename = '{}_{:.0f}_{:.3f}.csv'.format(a, b, c)
+    filename = '{}_{:.3f}_{:.0f}.csv'.format(a, b, c)
     try:
         with open(os.path.join(path, filename), 'r') as f:
             run_loader = csv.reader(f)
@@ -112,14 +112,18 @@ def get_ten(problem_map, num_iter, eps):
 
 if __name__ == "__main__":
     # roadmap = TravelingSalesman('C:/Users/Chris/Documents/OSU/ROB537/homework/hw2_data/15cities.csv')
-    roadmap = TravelingSalesman('/home/chris/rob537_hw/data/hw2_data/15cities.csv')
+    # roadmap = TravelingSalesman('/home/chris/rob537_hw/data/hw2_data/15cities.csv')
+    # roadmap = TravelingSalesman('/home/chris/rob537_hw/data/hw2_data/25cities.csv')
+    # roadmap = TravelingSalesman('/home/chris/rob537_hw/data/hw2_data/25cities_A.csv')
+    roadmap = TravelingSalesman('/home/chris/rob537_hw/data/hw2_data/100cities.csv')
     num_iter_vars = 15
-    iter_stride = 10000000
-    num_epsilon_vars = 8
-    epsilon_stride = 0.1
+    iter_stride = 1000
+    num_epsilon_vars = 1
+    epsilon_stride = 0.01
 
-    steps = [iter_stride * (x+1) for x in range(num_iter_vars)]
-    epsilons = [0.1 + epsilon_stride * y for y in range(num_epsilon_vars)]
+    steps = [1000 + iter_stride * x for x in range(num_iter_vars)]
+    # epsilons = [0.01 + epsilon_stride * y for y in range(num_epsilon_vars)]
+    epsilons = [0.001]
     results = np.zeros((num_iter_vars, num_epsilon_vars))
     result_errs = np.zeros((num_iter_vars, num_epsilon_vars))
     for i, iterations in enumerate(steps):
@@ -134,8 +138,9 @@ if __name__ == "__main__":
             result_errs[i, j] = std_err
 
     print(np.where(results == results.min()))
+    print(results[np.where(results == results.min())])
     plt.imshow(results, origin="bottom")
-    plt.title('Average Score (10 runs)')
+    plt.title('Standard Error (10 runs)')
     plt.xticks(range(len(epsilons)), np.round(epsilons, 3))
     plt.xlabel('Epsilon')
     plt.yticks(range(len(steps)), steps)

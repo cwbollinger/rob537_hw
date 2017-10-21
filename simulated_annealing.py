@@ -115,7 +115,7 @@ if __name__ == "__main__":
     print(np.where(results == results.min()))
     print(results)
     print(results[np.where(results == results.min())])
-    plt.imshow(results, origin="bottom")
+    plt.imshow(result_errs, origin="bottom")
     # plt.imshow(results, origin="bottom")
     plt.title('Average Score (10 runs)')
     plt.xticks(range(len(alphas)), np.round(alphas, 3))
