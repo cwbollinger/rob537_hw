@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib
 from matplotlib import pyplot as plt
 
 
@@ -34,6 +35,44 @@ class NArmBandit:
         return np.where(values == values.max())[0][0]
 
 
+def draw_greedy_plot(results):
+    matplotlib.rcParams.update({'font.size': 14})
+    fig, ax2d = plt.subplots(nrows=len(epoch_counts), ncols=len(start_vals), sharex=True, sharey=True)
+    for i, epoch_count in enumerate(epoch_counts):
+        print('--Epochs: {}--'.format(epoch_count))
+        for j, start_val in enumerate(start_vals):
+            ax2d[i, j].bar(range(len(results[i, j])), results[i, j])
+            ax2d[i, j].set_xticks(range(bandit.num_levers))
+
+            if i == (len(epoch_counts) - 1):
+                ax2d[i, j].set_xlabel('Lever #\nV_i={}'.format(start_val))
+
+            if j == 0:
+                ax2d[i, j].set_ylabel('N={}\n#/{} chosen'.format(epoch_count, len(seeds)))
+
+    fig.tight_layout()
+    plt.show(fig)
+
+
+def draw_e_greedy_plot(results):
+    matplotlib.rcParams.update({'font.size': 12})
+    fig, ax2d = plt.subplots(nrows=len(epoch_counts), ncols=len(epsilons), sharex=True, sharey=True)
+    for i, epoch_count in enumerate(epoch_counts):
+        print('--Epochs: {}--'.format(epoch_count))
+        for j, epsilon in enumerate(epsilons):
+            ax2d[i, j].bar(range(len(results[i, j])), results[i, j])
+            ax2d[i, j].set_xticks(range(bandit.num_levers))
+
+            if i == (len(epoch_counts) - 1):
+                ax2d[i, j].set_xlabel('Lever #\nepsilon={:.3f}'.format(epsilon))
+
+            if j == 0:
+                ax2d[i, j].set_ylabel('N={}\n#/{} chosen'.format(epoch_count, len(seeds)))
+
+    fig.tight_layout()
+    plt.show(fig)
+
+
 if __name__ == "__main__":
     bandit = NArmBandit([
         (1, 5),
@@ -42,16 +81,9 @@ if __name__ == "__main__":
         (2, 2),
         (1.75, 10)
     ])
-    print(bandit.dumb_choose(100, 0))
-    print(bandit.dumb_choose(100, 1))
-    print(bandit.dumb_choose(100, 2))
-    print(bandit.dumb_choose(100, 3))
-    print(bandit.dumb_choose(100, 4))
     epoch_counts = (10, 100)
-    start_vals = (5.0, 10.0, 15.0, 20.0)
-    epsilons = np.arange(0, 0.01, 0.001)
+    start_vals = range(5)
     greedy_results = np.zeros((len(epoch_counts), len(start_vals), bandit.num_levers), int)
-    e_greedy_results = np.zeros((len(epoch_counts), len(start_vals), len(epsilons), bandit.num_levers), int)
     seeds = range(1000)
 
     for i, epoch_count in enumerate(epoch_counts):
@@ -61,24 +93,16 @@ if __name__ == "__main__":
                 np.random.seed(seed)
                 lever_num = bandit.greedy(epoch_count, start_val)
                 greedy_results[i, j, lever_num] += 1
+    # draw_greedy_plot(greedy_results)
 
-            '''
-            for k, epsilon in enumerate(epsilons):
-                for seed in seeds:
-                    np.random.seed(seed)
-                    lever_num = bandit.e_greedy(epoch_count, epsilon, start_val)
-                    e_greedy_results[i, j, k, lever_num] += 1
-            '''
-
+    e_max = 0.7
+    epsilons = np.arange(e_max / 5.0, e_max + e_max / 5.0, e_max / 5.0)
+    e_greedy_results = np.zeros((len(epoch_counts), len(epsilons), bandit.num_levers), int)
     for i, epoch_count in enumerate(epoch_counts):
-        print('--Epochs: {}--'.format(epoch_count))
-        for j, start_val in enumerate(start_vals):
-            plt.subplot(len(epoch_counts), len(start_vals), i*len(start_vals)+(j+1))
-            plt.bar(range(len(greedy_results[i, j])), greedy_results[i, j])
-            plt.title('N={}, V_i={}'.format(epoch_count, start_val))
-            plt.xlabel('Lever #')
-            plt.ylabel('#/{} chosen'.format(len(seeds)))
-
-    plt.tight_layout()
-    plt.show()
+        for k, epsilon in enumerate(epsilons):
+            for seed in seeds:
+                np.random.seed(seed)
+                lever_num = bandit.e_greedy(epoch_count, epsilon, 2.0)
+                e_greedy_results[i, k, lever_num] += 1
+    draw_e_greedy_plot(e_greedy_results)
 
